@@ -1,0 +1,87 @@
+template(name='layout')
+    +chosen
+    +yield
+    +nav
+
+template(name='chat')
+    #x-chat-wrapper0
+        #x-chat-container0
+            each chats
+                +chat_list
+            #x-chat-photo0
+                img#x-chat-image0(src="spark1.jpg")  
+        input#x-chat-input0(type="text")
+
+template(name='chat_list')
+    #x-chat_list-line0 {{text}}
+
+template(name='home')
+    #front-container
+        img(id="front-pic" src="spark1.jpg")
+    img(id="back-pic"  src="{{back_pic}}")
+
+template(name='chosenbox')
+    .chosen-container(style="left:{{left}}px;")
+        img(class="chosen-box" id="chosen-box-{{id}}") 
+
+template(name='chosen')
+    #chosen
+        each chosen
+            +chosenbox
+
+template(name='settings')
+    h2 Settings
+
+template(name='menu_list')
+    li
+        a.main-menu(id="menu-toggle-{{id}}" href="{{path}}"): i.fa(class="fa-{{icon}}")
+
+template(name='nav')
+    #main-menu
+        ul
+            each menu
+                +menu_list
+
+template(name='html')
+     
+
+template(name='form')
+    if visible
+        .input-group.margin-bottom-sm
+           span.input-group-addon: i.fa.fa-fw(class="fa-{{icon}}")
+           input.form-control(id="{{id}}" type="{{type}}" placeholder="{{label}}" title="{{title}}" data-toggle="popover" data-trigger="hover" data-placement="right" data-html="true")
+
+template(name='button')
+    if visible
+        button.btn(class="{{class}}" id="{{id}}" type="{{type}}") {{label}}
+
+template(name='dialog')
+    button.btn(href="#myModal" role="button" data-toggle="modal") Modal
+    .modal.fade#myModal(tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+        .modal-dialog: .modal-content
+            .modal-header
+                button.close(type="button" data-dismiss="modal" aria-hidden="true") ×
+                h3#myModalLabel {{modalHeader}}
+            .modal-body
+                p {{modalBody}}
+            .modal-footer
+                button.btn(data-dismiss="modal" aria-hidden="true") {{modalCloseButton}}
+                button.btn.btn-primary {{modalActionButton}}
+
+template(name='a')
+    if visible
+        a(class="{{class}}" id="{{id}}") {{label}}
+
+template(name='menu')
+    if visible
+        if divider
+            li.divider
+        else
+            li: a(id="{{id}}" class="{{class}}" style="{{style}}")
+                i.fa(class="fa-{{icon}}" class="{{icon_class}}")
+                | {{label}}
+
+template(name='alert')
+    if visible
+        .alert(class="{{class}}") {{message}}
+

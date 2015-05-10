@@ -1,0 +1,4 @@
+public: collections: 'Chats'
+title: "Spark game"
+theme: "clean"
+lib_files: "ui"

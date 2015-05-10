@@ -1,0 +1,176 @@
+#!/usr/bin/env node
+
+var _ = require('underscore');
+var fs = require('fs');
+var crypto = require('crypto');
+var serialize = require('node-serialize');
+var conf = require('config');
+var Config = conf.Config;
+var __ = conf.__;
+
+
+var stringOrFunctionToString = function (what) {
+    if (!what) {
+        return ''; 
+    } else if (typeof what == 'string') {
+        return what;
+    } else if (typeof what == 'function') {
+        this.C = Config;
+        this._ = __;
+        return what.call(this, Config, __);
+    } else  throw "Error";
+}
+
+
+lib = { 
+    readFile: function (file, callback) {
+        fs.readFile( file, { encoding: 'utf8' }, function ( err, data ) {
+            if (err) return callback(err);
+            callback(null, data);
+        });
+    },
+    readFileSync: function (file) {
+        return fs.readFileSync(file, { encoding: 'utf8' })
+    },
+    writeFile: function (file, data) {
+        fs.writeFile( file, data, function (err) { 
+            if ( err ) throw err; 
+        });
+    },
+    overwriteFile: function (file, data) {
+        fs.writeFileSync( file, data, { encoding: 'utf8', flag: 'w+' } );
+    },
+    indentBlock: function (block, indent) {
+        if ( indent ) {
+            block = new String( block );
+            block = block.replace( /^/gm, __.repeat( Config.indent_string, indent ) );
+            block = block.toString();
+        }
+        return block
+    }
+}
+
+
+_.extend( __, lib );
+
+var getStorables = function () {
+    if ( ! fs.existsSync( Config.storables) ) {
+        file = fs.openSync( Config.storables, 'w' );
+        fs.closeSync(file);
+    }
+    var content = __.readFileSync( Config.storables );
+    content = ( content.length > 0 ) ? content : '{}';
+    return serialize.unserialize( content );
+}
+
+var saveStorables = function (data) {
+    __.overwriteFile( Config.storables, serialize.serialize( data ) );
+    Config.redis.rpush( 'node_utils:log', '68 Storables saved' );
+}
+
+
+var collectKey = function (obj, kind, storables_hash) {
+    
+    var strSum = '';
+    var template = Config.pages[kind];
+    
+    var checkSum = function () {
+        _.each( _.keys(obj), function ( file ) { 
+            _.each( _.keys( obj[file] ), function ( page ) {
+//                console.log( file + '/' + page + '/' + kind );
+//                console.log( 'SoF: ' + stringOrFunctionToString( obj[file][page][kind] ) );
+                strSum += stringOrFunctionToString( obj[file][page][kind] );
+            });
+        });
+        return crypto.createHash('md5').update( strSum ).digest('hex');
+    }
+    var updateFile = function () {
+        var fileTarget = template.header ? template.header : '';  // change: attach header later
+
+        objs = Object.keys(obj).filter( function(a) { return 'index' !== a } );
+        objs.unshift('index');
+        objs.forEach( function ( file ) {
+            console.log(file);
+            _.each( _.keys(obj[file]), function ( page ) {
+                var block = stringOrFunctionToString( obj[file][page][kind] );
+                if ( block ) {
+                    block = __.indentBlock( block, template.indent );
+                    var target = template.format.call( this, page, block );
+//                    console.log( 'target:' + target )
+//                    console.log( 'file:' + fileTarget )
+                    fileTarget += target;   // fileTarget order attach top or bottom
+                }
+            });
+        });
+        __.overwriteFile( template.target_file, fileTarget );
+//        console.log( 'Updated ' + template.target_file + ' ' + kind);
+//        if ( kind === 'jade_compile' ) {
+//            console.log( 'Updated ' + fileTarget);
+//        }
+        Config.redis.rpush( 'node_utils:log', ' 97 fileTarget:' + template.target_file );
+    };
+    
+    var hash = checkSum();
+    if ( fs.existsSync(template.target_file) ) {
+        if ( storables_hash !== hash )
+            updateFile();   
+    } else
+        updateFile();
+    Config.redis.rpush( 'node_utils:log', '106 kind:' + kind );
+    return hash;
+}
+
+
+var collectPages = function (pages_in_file) {
+    var storables = getStorables();
+    _.each( Config.templates, function ( type ) {
+        storables[type + '_hash'] = collectKey( pages_in_file, type, storables[type + '_hash'] );
+    });
+    saveStorables( storables );
+};
+
+var filesFromDir = function(dir) {
+    var results = [];
+
+    var files = fs.readdirSync(dir);
+/*    files.sort( function(a,b) {
+        if ('index.coffee' === a) 
+            return false;
+        else if ('index.coffee' === b)
+            return true;
+        else
+            return a > b;
+    });  */
+    files.forEach(function(file) {
+        file = dir + '/' + file;
+        var stat = fs.statSync(file);
+        if (stat && stat.isDirectory()) {
+            results = results.concat( filesFromDir(file) )
+        } else results.push(file);
+    });
+    return results;
+};
+
+( function () {
+    rc = Config.redis;
+    rc.get('collect:run', function (err, reply) {
+        if(reply == 'true') {
+            Config.quit();
+            process.exit(code=0);
+        } 
+    });
+    rc.set('collect:run', 'true'); // prevent race condition.
+    rc.expire('collect:run', 1);
+    require('coffee-script/register');
+    var pages_in_file = {}
+    var set = '';
+    
+    _.each( filesFromDir(Config.source_dir), function (file) {
+        set = file.replace(/.*?([^\/]+)\.coffee$/, "$1");    
+        pages_in_file[set] = require( Config.source_dir + set )[set]; 
+    });
+    collectPages( pages_in_file );
+    Config.quit();
+}.call(this) );
+
+

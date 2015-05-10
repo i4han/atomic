@@ -1,0 +1,20 @@
+
+mc = require('mongodb').MongoClient
+oracledb = require 'oracledb'
+
+url = "mongodb://localhost:27017/meteor"
+connection =
+    user          : " "
+    password      : " "
+    connectString : " "
+
+tables = " ".split ' '
+
+oracledb.getConnection connection, (err, oracle) ->
+    err and (console.error err.message or process.exit 0)
+    mc.connect url, (err, mongo) ->
+    	err and (console.error err.message or process.exit 0)
+    	tables.map (t) ->
+	    	oracle.execute "SELECT * FROM " + t, (err, result) -> console.log(result.rows);
+			mongo.collection(t).insert insert, (err, result) ->
+

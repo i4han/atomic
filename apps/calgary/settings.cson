@@ -1,0 +1,7 @@
+public:
+	collections: "ConstructionSite"
+title: "Construction Site monitor"
+theme: "clean"
+lib_files: "ui"
+screen_bg:
+    backgroundImage:'url(/screen-bg4.png)'
