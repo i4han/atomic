@@ -666,9 +666,9 @@ NotPxDefaultProperties = 'zIndex fontWeight'.split(' ');
 
 tideKey = function(key, fid, seperator) {
   var r;
-  while ((r = new RegExp(/\#{\s*([a-z0-9]+)\s*\}/)).test(key)) {
+  while ((r = new RegExp(/#\[([a-z_]+[0-9]+)\]/)).test(key)) {
     key = key.replace(r, function(m, $1) {
-      return '#' + fid($1).slice(1);
+      return fid($1);
     });
   }
   if ((!/^[a-zA-Z0-9_$]+$/.test(key)) || (!/[0-9_$]+/.test(key))) {
@@ -682,7 +682,7 @@ tideKey = function(key, fid, seperator) {
         return '#' + x.toDash(a.slice(1));
       case !/^h[1-6]$/.test(a):
         return a;
-      case !/^[a-z]+[0-9]+$/.test(a):
+      case !/^[a-z_]+[0-9]+$/.test(a):
         return fid(a);
       case 0 !== i:
         return a;
@@ -714,7 +714,7 @@ x.tideKey = function(obj, fid, seperator) {
 
 tideEventKey = function(key, fid) {
   var r;
-  while ((r = new RegExp(/(\s+)%([a-z0-9]+)(,|\s+|$)/)).test(key)) {
+  while ((r = new RegExp(/(\s+)#\[([a-z_]+[0-9]+)\](,|\s+|$)/)).test(key)) {
     key = key.replace(r, function(m, $1, $2, $3) {
       return $1 + fid($2) + $3;
     });

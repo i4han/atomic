@@ -4,6 +4,9 @@
 #x-chat-container0 {
   bottom: 88px;
 }
+#x-chat-line0 {
+  display: block;
+}
 #x-chat-input0 {
   bottom: 44px;
 }
@@ -20,9 +23,6 @@
   bottom: 49px;
   right: 5px;
   width: 100px;
-}
-#x-chat_list-line0 {
-  display: block;
 }
 #front-container {
   height: 526px;

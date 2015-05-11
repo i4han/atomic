@@ -7,13 +7,10 @@ template(name='chat')
     #x-chat-wrapper0
         #x-chat-container0
             each chats
-                +chat_list
+                #x-chat-line0 {{text}}
             #x-chat-photo0
                 img#x-chat-image0(src="spark1.jpg")  
         input#x-chat-input0(type="text")
-
-template(name='chat_list')
-    #x-chat_list-line0 {{text}}
 
 template(name='home')
     #front-container

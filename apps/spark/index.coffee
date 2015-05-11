@@ -11,8 +11,8 @@ exports.index =
 layout: 
 	jade: ['+chosen', '+yield', '+nav']
 	head: ["meta(name='viewport' content='width=device-width initial-scale=1.0, user-scalable=no')"]
-###
-login:
+
+login: ->
 	jade: 'button#facebook-login(class="btn btn-default")': 'login with facebook'
 	onStartup: ->
 		ServiceConfiguration.configurations.remove service: 'facebook'
@@ -23,31 +23,29 @@ login:
 	events:
 		'click #facebook-login': -> Meteor.loginWithFacebook {}
 		'click #logout': -> Meteor.logout()
-###
+	''
 chat:
 	router: path: 'chat'
 	jade: 
 		wrapper0:
 			container0: 
-				'each chats': '+chat_list': ''
-				photo0: 'img#{image0}(src="spark1.jpg")': ' '
-			'input#{input0}(type="text")': ''
+				'each chats': line0: '{{text}}'
+				photo0: 'img#[image0](src="spark1.jpg")': ' '
+			'input#[input0](type="text")': ''
 	absurd:
 		container0: position: 'fixed', bottom: bottom * 2
+		line0:      display: 'block'
 		input0:     position: 'fixed', bottom: bottom, width: width, height: bottom
 		image0:	    width: 'inherit'
 		photo0:     position: 'fixed', bottom: bottom + 5, right: 5, width: 100
 	events: ->
-		'keypress %input0': (e) =>
+		'keypress #[input0]': (e) =>
 			if e.keyCode == 13 and text = $(@id 'input0').val()
 				$(@id 'input0').val ''
 				Meteor.call 'says', 'isaac', text 
+	collections: 'Chats'
 	helpers: chats: -> db.Chats.find {}
 	methods: says: (id, text) -> db.Chats.insert id: id, text: text
-
-chat_list:
-	jade: line0: '{{text}}'
-	absurd: line0: display: 'block'
 
 home:
 	router: path: '/'

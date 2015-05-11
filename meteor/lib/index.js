@@ -22,20 +22,34 @@ exports.index = {
     jade: ['+chosen', '+yield', '+nav'],
     head: ["meta(name='viewport' content='width=device-width initial-scale=1.0, user-scalable=no')"]
   },
-
-  /*
-  login:
-  	jade: 'button#facebook-login(class="btn btn-default")': 'login with facebook'
-  	onStartup: ->
-  		ServiceConfiguration.configurations.remove service: 'facebook'
-  		ServiceConfiguration.configurations.insert
-      		service: 'facebook'
-      		appId: '839822572732286'
-  			secret: 'd48753b6d59e2e908fe313d0aa8011b8'
-  	events:
-  		'click #facebook-login': -> Meteor.loginWithFacebook {}
-  		'click #logout': -> Meteor.logout()
-   */
+  login: function() {
+    ({
+      jade: {
+        'button#facebook-login(class="btn btn-default")': 'login with facebook'
+      },
+      onStartup: function() {
+        ServiceConfiguration.configurations.remove({
+          service: 'facebook'
+        });
+        ServiceConfiguration.configurations.insert({
+          service: 'facebook',
+          appId: '839822572732286'
+        });
+        return {
+          secret: 'd48753b6d59e2e908fe313d0aa8011b8'
+        };
+      },
+      events: {
+        'click #facebook-login': function() {
+          return Meteor.loginWithFacebook({});
+        },
+        'click #logout': function() {
+          return Meteor.logout();
+        }
+      }
+    });
+    return '';
+  },
   chat: {
     router: {
       path: 'chat'
@@ -44,19 +58,22 @@ exports.index = {
       wrapper0: {
         container0: {
           'each chats': {
-            '+chat_list': ''
+            line0: '{{text}}'
           },
           photo0: {
-            'img#{image0}(src="spark1.jpg")': ' '
+            'img#[image0](src="spark1.jpg")': ' '
           }
         },
-        'input#{input0}(type="text")': ''
+        'input#[input0](type="text")': ''
       }
     },
     absurd: {
       container0: {
         position: 'fixed',
         bottom: bottom * 2
+      },
+      line0: {
+        display: 'block'
       },
       input0: {
         position: 'fixed',
@@ -76,7 +93,7 @@ exports.index = {
     },
     events: function() {
       return {
-        'keypress %input0': (function(_this) {
+        'keypress #[input0]': (function(_this) {
           return function(e) {
             var text;
             if (e.keyCode === 13 && (text = $(_this.id('input0')).val())) {
@@ -87,6 +104,7 @@ exports.index = {
         })(this)
       };
     },
+    collections: 'Chats',
     helpers: {
       chats: function() {
         return db.Chats.find({});
@@ -98,16 +116,6 @@ exports.index = {
           id: id,
           text: text
         });
-      }
-    }
-  },
-  chat_list: {
-    jade: {
-      line0: '{{text}}'
-    },
-    absurd: {
-      line0: {
-        display: 'block'
       }
     }
   },

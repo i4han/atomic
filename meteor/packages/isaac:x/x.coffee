@@ -296,14 +296,13 @@ NotPxDefaultProperties = 'zIndex fontWeight'.split ' '
 
 
 tideKey = (key, fid, seperator) ->
-    key = (key.replace r, (m, $1) -> '#' + fid($1)[1..]) while (r=new RegExp /\#{\s*([a-z0-9]+)\s*\}/).test key
+    key = (key.replace r, (m, $1) -> fid $1) while (r=new RegExp /#\[([a-z_]+[0-9]+)\]/).test key
     return key if (not /^[a-zA-Z0-9_$]+$/.test key) or (not /[0-9_$]+/.test key)
-    # key.split('_').map (a, i) -> '$' == a[0] and console.log '#' + x.toDash a[1..]
     key.split('_').map((a, i) -> switch 
         when ''  == a    then undefined
         when '$' == a[0] then '#' + x.toDash a[1..]
-        when /^h[1-6]$/.test a       then a 
-        when /^[a-z]+[0-9]+$/.test a then fid a
+        when /^h[1-6]$/.test a        then a 
+        when /^[a-z_]+[0-9]+$/.test a then fid a
         when 0 == i  then a
         else '.' + x.toDash a
     ).filter((f) -> f).join seperator
@@ -318,7 +317,7 @@ x.tideKey = (obj, fid, seperator) ->
 
 
 tideEventKey = (key, fid) ->
-    key = (key.replace r, (m, $1, $2, $3) -> $1+fid($2)+$3) while (r=new RegExp /(\s+)%([a-z0-9]+)(,|\s+|$)/).test key
+    key = (key.replace r, (m, $1, $2, $3) -> $1+fid($2)+$3) while (r=new RegExp /(\s+)#\[([a-z_]+[0-9]+)\](,|\s+|$)/).test key
     key
 
 x.tideEventKey = (obj, fid) ->

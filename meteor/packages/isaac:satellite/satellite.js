@@ -3,8 +3,8 @@ var collections, db_client, db_server, s;
 
 collections = (s = Meteor.settings) && s["public"] ? x.toArray(s["public"].collections) : [];
 
-db_server = function() {
-  return collections.map(function(collection) {
+db_server = function(c) {
+  return c.map(function(collection) {
     db[collection] = new Meteor.Collection(collection);
     db[collection].allow({
       insert: function(doc) {
@@ -31,8 +31,8 @@ db_server = function() {
   });
 };
 
-db_client = function() {
-  return collections.map(function(collection) {
+db_client = function(c) {
+  return c.map(function(collection) {
     db[collection] = new Meteor.Collection(collection);
     return Meteor.subscribe(collection);
   });
@@ -55,19 +55,22 @@ Meteor.startup(function() {
     return x.module.call(this, n, Module[n]);
   });
   if (Meteor.isServer) {
-    collections && db_server();
+    collections.length && db_server(collections);
     return x.keys(Module).map(function(name) {
-      var methods;
-      return (methods = Module[name].methods) && Meteor.methods(methods);
+      var _;
+      _ = x.func(Module[name], Module[name]);
+      _.methods && Meteor.methods(_.methods);
+      return _.collections && db_server(x.toArray(_.collections));
     });
   } else if (Meteor.isClient) {
-    collections && db_client();
+    collections.length && db_client(collections);
     Router.configure({
       layoutTemplate: 'layout'
     });
     x.keys(Module).map(function(name) {
       var _;
-      _ = Module[name];
+      _ = x.func(Module[name], Module[name]);
+      _.collections && db_client(x.toArray(_.collections));
       _.onStartup && _.onStartup.call(_);
       _.router && console.log('O') || Router.map(function() {
         return this.route(name, x.extend(_.router));
