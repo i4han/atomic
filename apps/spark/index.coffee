@@ -9,7 +9,19 @@ pic_height = height - (pic_top + bottom)
 
 exports.index =
 layout: jade: ['+chosen', '+yield', '+nav']
-
+###
+login:
+	jade: 'button#facebook-login(class="btn btn-default")': 'login with facebook'
+	onStartup: ->
+		ServiceConfiguration.configurations.remove service: 'facebook'
+		ServiceConfiguration.configurations.insert
+    		service: 'facebook'
+    		appId: '839822572732286'
+			secret: 'd48753b6d59e2e908fe313d0aa8011b8'
+	events:
+		'click #facebook-login': -> Meteor.loginWithFacebook {}
+		'click #logout': -> Meteor.logout()
+###
 chat:
 	router: path: 'chat'
 	jade: 

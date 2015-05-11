@@ -73,14 +73,20 @@ init_settings = ->
     @Settings = Settings
 init_settings()
 lib_files    = x.toArray Settings.lib_files
-other_files  = x.toArray Settings.other_files
 my_packages  = x.toArray Settings.packages
 public_files = x.toArray Settings.public_files
 package_paths = my_packages.map (p) -> add meteor_package_path, p
 lib_paths     = lib_files  .map (l) -> add lib_path, l + '.coffee'
+###
+other_files  = x.toArray Settings.other_files
 module_paths  = [index_coffee] 
     .concat lib_files  .map (l) -> add lib_path, l + '.coffee'
     .concat other_files.map (o) -> add site_path, o
+###
+module_paths  = (fs.readdirSync site_path).filter((f) -> '.coffee' == path.extname f)
+    .map (f) -> add site_path, f
+    .concat(lib_files.map (l) -> add lib_path, l + '.coffee')
+
 
 updated = 'updated time'
 logio_port = 8777
