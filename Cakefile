@@ -84,9 +84,8 @@ module_paths  = [index_coffee]
     .concat other_files.map (o) -> add site_path, o
 ###
 module_paths  = (fs.readdirSync site_path).filter((f) -> '.coffee' == path.extname f)
-    .map (f) -> add site_path, f
+    .map((f) -> add site_path, f)
     .concat(lib_files.map (l) -> add lib_path, l + '.coffee')
-
 
 updated = 'updated time'
 logio_port = 8777
@@ -231,10 +230,10 @@ compare_file = (source, target) -> false
 
 cp = (source, target) ->
     ! compare_file(source, target) and fs.readFile source, (e, data) -> 
-        console.log source, target
+        # console.log source, target
         error(e) or fs.readFile target, (e, data_t) ->
             e or (data.length > 0 and data.toString() != data_t.toString()) and fs.writeFile target, data, ->
-                console.log new Date(), target   
+                # console.log new Date(), target   
 
 cpdir = (source, target) ->
     fs.readdir source, (e, list) -> list.map (f) ->

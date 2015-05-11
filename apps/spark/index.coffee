@@ -8,7 +8,9 @@ pic_top    = top + box
 pic_height = height - (pic_top + bottom)
 
 exports.index =
-layout: jade: ['+chosen', '+yield', '+nav']
+layout: 
+	jade: ['+chosen', '+yield', '+nav']
+	head: ["meta(name='viewport' content='width=device-width initial-scale=1.0, user-scalable=no')"]
 ###
 login:
 	jade: 'button#facebook-login(class="btn btn-default")': 'login with facebook'
@@ -28,8 +30,8 @@ chat:
 		wrapper0:
 			container0: 
 				'each chats': '+chat_list': ''
-				photo0: 'img#{%image0}(src="spark1.jpg")': ' '
-			'input#{%input0}(type="text")': ''
+				photo0: 'img#{image0}(src="spark1.jpg")': ' '
+			'input#{input0}(type="text")': ''
 	absurd:
 		container0: position: 'fixed', bottom: bottom * 2
 		input0:     position: 'fixed', bottom: bottom, width: width, height: bottom

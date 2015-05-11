@@ -296,9 +296,9 @@ NotPxDefaultProperties = 'zIndex fontWeight'.split ' '
 
 
 tideKey = (key, fid, seperator) ->
-    key = (key.replace r, (m, $1) -> fid($1)[1..]) while (r=new RegExp /\{%\s*([a-z0-9]+)\s*\}/).test key
+    key = (key.replace r, (m, $1) -> '#' + fid($1)[1..]) while (r=new RegExp /\#{\s*([a-z0-9]+)\s*\}/).test key
     return key if (not /^[a-zA-Z0-9_$]+$/.test key) or (not /[0-9_$]+/.test key)
-    key.split('_').map (a, i) -> '$' == a[0] and console.log '#' + x.toDash a[1..]
+    # key.split('_').map (a, i) -> '$' == a[0] and console.log '#' + x.toDash a[1..]
     key.split('_').map((a, i) -> switch 
         when ''  == a    then undefined
         when '$' == a[0] then '#' + x.toDash a[1..]
@@ -319,7 +319,6 @@ x.tideKey = (obj, fid, seperator) ->
 
 tideEventKey = (key, fid) ->
     key = (key.replace r, (m, $1, $2, $3) -> $1+fid($2)+$3) while (r=new RegExp /(\s+)%([a-z0-9]+)(,|\s+|$)/).test key
-    console.log 'eventkey', key
     key
 
 x.tideEventKey = (obj, fid) ->

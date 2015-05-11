@@ -19,7 +19,8 @@ pic_height = height - (pic_top + bottom);
 
 exports.index = {
   layout: {
-    jade: ['+chosen', '+yield', '+nav']
+    jade: ['+chosen', '+yield', '+nav'],
+    head: ["meta(name='viewport' content='width=device-width initial-scale=1.0, user-scalable=no')"]
   },
 
   /*
@@ -46,10 +47,10 @@ exports.index = {
             '+chat_list': ''
           },
           photo0: {
-            'img#{%image0}(src="spark1.jpg")': ' '
+            'img#{image0}(src="spark1.jpg")': ' '
           }
         },
-        'input#{%input0}(type="text")': ''
+        'input#{input0}(type="text")': ''
       }
     },
     absurd: {

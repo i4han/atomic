@@ -666,17 +666,14 @@ NotPxDefaultProperties = 'zIndex fontWeight'.split(' ');
 
 tideKey = function(key, fid, seperator) {
   var r;
-  while ((r = new RegExp(/\{%\s*([a-z0-9]+)\s*\}/)).test(key)) {
+  while ((r = new RegExp(/\#{\s*([a-z0-9]+)\s*\}/)).test(key)) {
     key = key.replace(r, function(m, $1) {
-      return fid($1).slice(1);
+      return '#' + fid($1).slice(1);
     });
   }
   if ((!/^[a-zA-Z0-9_$]+$/.test(key)) || (!/[0-9_$]+/.test(key))) {
     return key;
   }
-  key.split('_').map(function(a, i) {
-    return '$' === a[0] && console.log('#' + x.toDash(a.slice(1)));
-  });
   return key.split('_').map(function(a, i) {
     switch (false) {
       case '' !== a:
@@ -722,7 +719,6 @@ tideEventKey = function(key, fid) {
       return $1 + fid($2) + $3;
     });
   }
-  console.log('eventkey', key);
   return key;
 };
 
