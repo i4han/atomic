@@ -10,13 +10,13 @@ Router.route '/-/:shorten', (->
 ),  where: 'server'
 
 Router.route '/forward/:target', (->
-	v = Meteor.settings.forwards[@params.target].split '.'
+	v = @params.target.split '.'
 	@response.writeHead 301, Location: switch v[1]
 		when 'oauth' then x.oauth v[0]
 	@response.end()
 ), where: 'server'
 
-Router.route '/api/ok', where: 'server'
+Router.route('/api/ok', where: 'server')
   .get  -> @response.end 'get request\n'
   .post -> @response.end 'post request\n'
   .put  -> @response.end 'put request\n'

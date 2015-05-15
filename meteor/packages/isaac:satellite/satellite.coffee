@@ -1,8 +1,10 @@
 
 
 collections = if (s = Meteor.settings) and s.public then x.toArray s.public.collections else []
+connected = []
 
-db_server = (c) -> c.map (collection) ->
+dbServer = (c) -> c.filter((c) -> ! c in connected).map (collection) ->
+    connected.push collection
     db[collection] = new Meteor.Collection collection
     db[collection].allow
         insert: (doc) -> true
@@ -13,33 +15,35 @@ db_server = (c) -> c.map (collection) ->
         remove: (userId, doc) -> false
     Meteor.publish collection, -> db[collection].find {}
 
-db_client = (c) -> c.map (collection) ->
+dbClient = (c) -> c.filter((c) -> ! c in connected).map (collection) ->
+    connected.push collection
     db[collection] = new Meteor.Collection collection
     Meteor.subscribe collection
 
 Meteor.startup ->
-    x.keys(exports).map (file) -> Module[key] = val for key, val of exports[file]
+    x.keys(exports).map((file) -> Module[key] = val for key, val of exports[file])
         .filter (n) -> n[0..1] == '__' and delete Module[n]
     x.keys(@Module = Module).map (n) -> x.module.call @, n, Module[n]
     if Meteor.isServer
-        collections.length and db_server collections
+        collections.length and dbServer collections
         x.keys(Module).map (name) ->
-            _ = x.func Module[name], Module[name]
+            _ = x.func Module[name], x.func Module[name]
             _.methods     and Meteor.methods _.methods
-            _.collections and db_server x.toArray _.collections
+            _.collections and dbServer x.toArray _.collections
+            _.onServerStartup and _.onServerStartup.call _
     else if Meteor.isClient
-        collections.length and db_client collections
+        collections.length and dbClient collections
         Router.configure layoutTemplate: 'layout'
         x.keys(Module).map (name) ->
-            _ = x.func Module[name], Module[name]
-            _.collections and db_client x.toArray _.collections
+            _ = x.func Module[name], x.func Module[name]
+            _.collections and dbClient x.toArray _.collections
             _.onStartup   and _.onStartup.call(_)
             _.router      and console.log('O') or Router.map -> @route name, x.extend _.router #, data: -> Session.set 'params', @params
             _.events      and Template[name].events x.tideEventKey x.func(_.events, _), _.id
             _.helpers     and Template[name].helpers x.func _.helpers, _
-            _.on$Ready    and $ ($) -> _.on$Ready.call(_)
+            _.on$Ready    and $ ($) -> _.on$Ready.call _
             ('onCreated onRendered onDestroyed'.split ' ').forEach (d) -> 
-                _[d] and Template[name][d] -> _[d].call(_)
+                _[d] and Template[name][d] -> _[d].call _
         $ ($) -> 
             o.$.map (f) -> f()
             $.fn[k] = x.$[k] for k of x.$

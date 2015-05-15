@@ -4,10 +4,8 @@ fs       =  require 'fs'
 path     =  require 'path'
 ps       =  require 'ps-node'
 cs       =  require 'coffee-script'
-es       =  require 'event-stream'
 eco      =  require 'eco'
 chokidar =  require 'chokidar'
-rm_rf    =  require 'rimraf'
 {ncp}    =  require 'ncp'
 path     =  require 'path'
 jade     =  require 'jade'
@@ -17,7 +15,13 @@ cson     =  require 'CSON'
 nconf    =  require 'nconf'
 api      =  require('absurd')()
 {spawn, exec} = require 'child_process'
-# argv = require('minimist')(process.argv.slice 2)
+
+# es       =  require 'event-stream'
+# rm_rf    =  require 'rimraf'
+
+command  =  process.argv[2]
+argv     =  require('minimist') process.argv[3..]
+
 add  = path.join
 home = process.env.HOME
 cwd  = process.cwd()
@@ -141,9 +145,9 @@ logh
 ###
 
 install = ->
-    npm_modules = 'coffee-script underscore express stylus fs-extra fibers mongodb chokidar '  + # hiredis redis
-        'node-serialize request event-stream promptly jade ps-node googleapis ' +
-        'node-curl rimraf eco js2coffee path async readline nconf' #node-uber
+    npm_modules = 'coffee-script underscore stylus mongodb chokidar jade ps-node '  + 
+        'eco path async readline nconf' #node-uber
+        # hiredis redis fs-extra fibers node-serialize request express event-stream promptly googleapis node-curl rimraf js2coffee
     data = """
         #!/usr/bin/env bash
         # curl -fsSL https://raw.github.com/action-io/autoparts/master/setup.rb | ruby
@@ -309,9 +313,9 @@ start_up = ->
                 nconf.set 'updated_packages', (((nconf.get 'updated_packages') or [])
                     .concat([dir_f = path.dirname f]).filter((v, i, a) -> a.indexOf(v) == i))
                 console.log new Date(), 'Changed', f
-    command()
+    commands()
 
-command = ->
+commands = ->
     rl = require('readline').createInterface process.stdin, process.stdout
     rl.setPrompt ''
     rl.on('line', (line) ->        
@@ -369,11 +373,12 @@ settings = ->
     fs.writeFile settings_json, JSON.stringify(Settings, '', 4) + '\n', (e, data) -> 
         console.log new Date(), 'Settings'
 
-
+###
 fileStream = (source, target, f) ->
     fs.createReadStream source
-        .pipe es.mapSync (data) -> f(data)
+        .pipe es.mapSync (data) -> f(data)   # only es
         .pipe fs.createWriteStream target
+###
 
 publish = ->
     version = {}
@@ -390,7 +395,7 @@ publish = ->
                 hold_watch(1)
                 fs.writeFile package_js, data, 'utf8', (e) -> e and console.log new Date, e
             else 
-                async.map x.keys(version), (p) ->
+                async.map x.keys(version), (p) -> # only async
                     data = data.replace((new RegExp("api\.use\\('#{p}.+$", 'm')), "api.use('#{p}@#{version[p]}');")
                 hold_watch(1)
                 fs.writeFile package_js, data, 'utf8', (e) ->
@@ -498,8 +503,26 @@ gitpass = ->
             """, flag: 'w+'
         Config.quit(process.exit 1)
 
+tasks =
+    test:
+        description: 'test'
+        callback: -> test()
+    build:
+        description: 'Build meteor client files.'
+        callback: -> build()
+    settings:
+        description: 'Settings'
+        callback: -> settings()
+    publish:
+        description: 'Publish Meteor packages'
+        callback: -> publish()
 
-#task 'create',    'Create Site',      (options) -> create(options)
+(task = tasks[command]) and task.callback()
+task or x.keys(tasks).map (k) -> 
+    console.log '  ', (k + Array(15).join ' ')[..15], tasks[k].description
+
+###
+task 'create',    'Create Site',      (options) -> create(options)
 task 'test', '', -> test()
 task 'mobile',    'Update mobile directory',    -> update_mobile()
 task 'mobile-install',    'Update mobile directory',    -> install_mobile()
@@ -517,4 +540,4 @@ task 'gitpass',   'github.com auto login',      -> gitpass()
 task 'daemon',    'start daemons',              -> daemon()
 task 'settings',  'Settings',                   -> settings()
 task 'meteor',    'Start meteor',               -> start_meteor()
-
+###

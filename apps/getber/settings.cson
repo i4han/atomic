@@ -13,7 +13,5 @@ screen_bg:
     backgroundImage:'url(/screen-bg4.png)'
 shortens:
 	'p': '/profile'
-forwards:
-	uber_oauth: 'uber.oauth'
 lander:
 	hero: 'two-girls-getber.jpg'
