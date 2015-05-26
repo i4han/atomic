@@ -14,7 +14,7 @@ mizzao:jquery-ui
 mquandalle:jade
 stylus
 underscore
-isaac:satellite
 iron:router
 service-configuration
 accounts-facebook
+isaac:cubesat

@@ -11,6 +11,6 @@ Package.on_use(function(api) {
   api.addFiles([
     'route.js'
   ], 'server');
-//  api.export( '', 'client');
+  api.export( 'x', ['client','server']);
 });
 

@@ -30,15 +30,7 @@ iron:location@1.0.7
 iron:middleware-stack@1.0.7
 iron:router@1.0.7
 iron:url@1.0.7
-isaac:absurd@0.0.2
-isaac:elements@0.1.12
-isaac:intl-tel-input@0.1.3
-isaac:masonry@0.0.1
-isaac:moment@0.0.1
-isaac:route@0.1.6
-isaac:satellite@0.2.14
-isaac:settings@0.1.9
-isaac:x@0.3.8
+isaac:cubesat@0.4.8
 jquery@1.11.3_2
 json@1.0.3
 launch-screen@1.0.2

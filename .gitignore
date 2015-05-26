@@ -2,7 +2,4 @@
 .config.json
 .settings.cson
 .settings.json
-meteor/public/Calgary_tour.mp4
-meteor/public/uber.mp4
-apps/getber/app/public/uber.mp4
 npm-debug.log

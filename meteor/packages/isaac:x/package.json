@@ -1,0 +1,11 @@
+{
+  "name": "x-sat",
+  "version": "0.3.9",
+  "description": "Satellite utilities",
+  "main": "x.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Isaac Han <isaac@hi16.ca>",
+  "license": "GPL"
+}

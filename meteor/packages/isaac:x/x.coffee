@@ -162,43 +162,6 @@ x.position = (obj) ->
         $('#'+obj.parentId+' .'+obj.class).css top:obj.top, left:obj.left, position:'absolute'
     , 200
 
-###
-x.contentEditable = (id, func) ->
-    $cloned = undefined
-    $('#' + id)
-        .on 'focus', '[contenteditable]', -> $(@).data 'before', $(@).html() ; $(@)
-        .on 'blur keyup paste input', '[contenteditable]', ->
-            $(@).data 'before', $(@).html()
-            if $(@).data('before') isnt $(@).html()
-                console.log 'edited'
-                func(@)
-            $(@)
-        .on 'scroll', '[contenteditable]', (event) ->
-            $(@).scrollTop 0
-            event.preventDefault()
-            false
-        .on 'keydown', '[contenteditable]', ->
-            if !$cloned
-                zIndex = $(@).css 'z-index'
-                $(@).css 'z-index': zIndex = 10 if parseInt(zIndex, 10) == NaN             
-                $cloned = $(@).clone()
-                $cloned.css
-                    'z-index': zIndex-1
-                    position: 'absolute'
-                    top:      $(@).offset().top
-                    left:     $(@).offset().left
-                    overflow: 'hidden'
-                    outline:  'auto 5px -webkit-focus-ring-color'
-                $(@).before $cloned
-            else
-                $cloned.html $(@).html()
-            console.log $cloned.css opacity: 1
-            console.log $(@).css overflow:'visible', opacity: 0
-            Meteor.setTimeout (=>
-                $(@).css overflow:'hidden', opacity: 1
-                $cloned.css opacity: 0
-            ), 200
-###
 
 x.scrollSpy = (obj) ->
     $$ = $ '.scrollspy'
@@ -365,7 +328,7 @@ class x.Style
     set:    (property, value) -> @style.setProperty(property, value); @instance
     get:    (property)        -> @style[property]
     remove: (property)        -> @style[property] and @style.removeProperty(property) ; @instance
-    _instance: (i)             -> @instance = i
+    _instance: (i)            -> @instance = i
 
 x.style = (name) -> (i = new x.Style(name))._instance i
 
